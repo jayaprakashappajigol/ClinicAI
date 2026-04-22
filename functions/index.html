@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h3>Clinic Triage</h3>
+    <input type="text" id="name" placeholder="Name"><br><br>
+    <input type="text" id="phone" placeholder="Phone"><br><br>
+    <select id="symptoms">
+        <option value="Fever">Fever</option>
+        <option value="Cough">Cough</option>
+        <option value="Headache">Headache</option>
+    </select><br><br>
+    <button onclick="getAIDraft()">1. Generate AI Draft</button>
+    <div id="editorSection" style="display:none; margin-top:20px;">
+        <p><strong>Review and Edit:</strong></p>
+        <textarea id="finalText" rows="10" style="width:100%;"></textarea><br>
+        <button onclick="generatePDF()">2. Save as PDF</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        async function getAIDraft() {
+            const res = await fetch('/generate', { method: 'POST', body: JSON.stringify({ name: document.getElementById('name').value, phone: document.getElementById('phone').value, symptoms: document.getElementById('symptoms').value }) });
+            const data = await res.json();
+            document.getElementById('finalText').value = data.content;
+            document.getElementById('editorSection').style.display = 'block';
+        }
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Medical Prescription", 10, 10);
+            doc.text(document.getElementById('finalText').value, 10, 20, { maxWidth: 180 });
+            doc.save("Prescription.pdf");
+        }
+    </script>
+</body>
+</html>
